@@ -1,0 +1,35 @@
+
+Ajout du route pour un pc 
+Pour le pc 2
+
+
+Ajouter le nat
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+
+ACCEPT LA CONNEXION
+
+iptables -A FORWARD -i eth1 -o eth2 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth1 -j ACCEPT
+iptables -A FORWARD -i eth1 -o eth3 -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth1 -j ACCEPT
+iptables -A FORWARD -i eth2 -o eth3 -j ACCEPT
+iptables -A FORWARD -i eth3 -o eth2 -j ACCEPT
+
+
+ ----------- Bloquer uniquement certains types de trafic ---------------
+ 
+ ** MIJERY NY LISTE AN'NY REGLE
+	iptables -L FORWARD --line-numbers -v
+
+ ** MI BLOQUER CONNEXION
+	iptables -A FORWARD -i eth1 -o eth2 -j DROP
+	
+ ** Si une règle ACCEPT apparaît avant le DROP, tu dois la supprimer ou la déplacer :
+	iptables -D FORWARD [numéro_de_la_règle]
+
+ ** Interdire uniquement le SSH (port 22) entre eth1 et eth2 :
+	iptables -A FORWARD -i eth1 -o eth2 -p tcp --dport 22 -j DROP
+
+ ** Bloquer uniquement une IP spécifique (192.168.1.100) :
+	iptables -A FORWARD -i eth1 -o eth2 -s 192.168.1.100 -j DROPip route replace default via 192.168.2.10 dev eth0

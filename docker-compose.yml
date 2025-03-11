@@ -1,0 +1,78 @@
+services:
+  public_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    container_name: public_server
+    hostname: public_server
+    privileged: true
+    networks:
+      switch1:
+        ipv4_address: 192.168.1.2
+    ports:
+      - "80:80"  # Expose le port 80 pour accéder à la page web
+
+  internal_desktop:
+    build:
+      context: .
+      dockerfile: Dockerfile.pc
+    container_name: internal_desktop
+    hostname: internal_desktop  # Définir explicitement le nom d'hôte
+    privileged: true
+    networks:
+      switch2:
+        ipv4_address: 192.168.2.2
+
+  internal_server:
+    build:
+      context: .
+      dockerfile: Dockerfile.pc
+    container_name: internal_server
+    hostname: internal_server  # Définir explicitement le nom d'hôte
+    privileged: true
+    networks:
+      switch2:
+        ipv4_address: 192.168.2.3
+
+  firewall:
+    build:
+      context: .
+      dockerfile: Dockerfile.router
+    container_name: firewall
+    privileged: true
+    networks:
+      switch1:
+        ipv4_address: 192.168.1.10
+      switch2:
+        ipv4_address: 192.168.2.10
+      cloudnet:
+        ipv4_address: 10.10.0.20
+
+  internet:
+    image: debian
+    container_name: internet
+    privileged: true
+    networks:
+      cloudnet:
+        ipv4_address: 10.10.0.10
+    command: ["sh", "-c", "tail -f /dev/null"]
+
+networks:
+  switch1:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24
+
+  switch2:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.168.2.0/24
+
+  cloudnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
+
